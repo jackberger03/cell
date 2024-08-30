@@ -8,7 +8,7 @@ class FunctionGenerator:
         self.dac = dac
         self.running = True
         self.waveforms = ['square', 'triangle', 'sin']
-        self.frequency = 1000  # Default frequency
+        self.frequency = 10  # Default frequency
         self.max_voltage = 3.3  # Default max voltage
 
     def square_wave(self, duration):
