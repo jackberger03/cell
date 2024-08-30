@@ -13,7 +13,7 @@ def sin_wave():
 
     while True:
         voltage = 2048 * (1.0 + 0.5 * math.sin(6.2832 * t))
-        dac.raw_value = int(voltage)
+        dac.set_voltage(int(voltage))
         t += tStep
         time.sleep(0.0005)
 
