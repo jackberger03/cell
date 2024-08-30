@@ -80,11 +80,15 @@ class FunctionGenerator:
             
             print(f"Generating {shape} wave at {frequency} Hz with {max_voltage}V max for {duration} seconds")
             if shape == 'square':
+                print("Starting square wave generation...")
                 self.square_wave(frequency, max_voltage, duration)
             elif shape == 'triangle':
+                print("Starting triangle wave generation...")
                 self.triangle_wave(frequency, max_voltage, duration)
             elif shape == 'sin':
+                print("Starting sine wave generation...")
                 self.sine_wave(frequency, max_voltage, duration)
+            print("Wave generation complete.")
             
             choice = input("Generate another waveform? (y/n): ").lower()
             if choice != 'y':
