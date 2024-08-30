@@ -13,7 +13,7 @@ class FunctionGenerator:
         period = 1 / frequency
         half_period = period / 2
         while time.time() < end_time:
-            self.dac.raw_value = max_voltage
+            self.dac.raw_value = int(max_voltage)
             time.sleep(half_period)
             self.dac.raw_value = 0
             time.sleep(half_period)
