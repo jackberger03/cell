@@ -11,9 +11,6 @@ def square_wave(pin, frequency):
         time.sleep(period / 2)
         GPIO.output(pin, GPIO.LOW)
         time.sleep(period / 2)
-        print(f"Generating square wave on pin {pin} at {frequency} Hz")
-        print(f"Period: {period:.6f} seconds")
-        print("Press Ctrl+C to stop")
 
 if __name__ == "__main__":
     try:
