@@ -13,9 +13,9 @@ class FunctionGenerator:
         period = 1 / frequency
         half_period = period / 2
         while time.time() < end_time:
-            self.dac.voltage = max_voltage
+            self.dac.raw_value = max_voltage
             time.sleep(half_period)
-            self.dac.voltage = 0
+            self.dac.raw_value = 0
             time.sleep(half_period)
 
     def sine_wave(self, frequency, max_voltage, duration):
@@ -24,7 +24,7 @@ class FunctionGenerator:
         while time.time() < end_time:
             for t in range(int(1 / (frequency * step))):
                 value = (math.sin(2 * math.pi * frequency * t * step) + 1) / 2
-                self.dac.voltage = value * max_voltage
+                self.dac.raw_value = value * max_voltage
                 time.sleep(step)
 
     def triangle_wave(self, frequency, max_voltage, duration):
@@ -32,10 +32,10 @@ class FunctionGenerator:
         step = 0.01
         while time.time() < end_time:
             for i in range(50):
-                self.dac.voltage = (i / 50) * max_voltage
+                self.dac.raw_value = (i / 50) * max_voltage
                 time.sleep(step)
             for i in range(50, 0, -1):
-                self.dac.voltage = (i / 50) * max_voltage
+                self.dac.raw_value = (i / 50) * max_voltage
                 time.sleep(step)
 
     def get_user_input(self):
@@ -104,4 +104,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\nStopping the function generator.")
     finally:
-        dac.voltage = 0  # Reset DAC output to 0V
+        dac.raw_value = 0  # Reset DAC output to 0V
