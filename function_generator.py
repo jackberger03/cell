@@ -98,7 +98,7 @@ class FunctionGenerator:
 if __name__ == "__main__":
     i2c = board.I2C()
     dac = MCP4725(i2c)
-    button_pin = 21
+    button_pin = 20
     fg = FunctionGenerator(dac, button_pin)
     
     try:
