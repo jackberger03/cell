@@ -17,6 +17,6 @@ def square_wave(pin, frequency):
 
 if __name__ == "__main__":
     try:
-        square_wave(18, 100000)  # 100 kHz on GPIO 18
+        square_wave(24, 1000)  # 100 kHz on GPIO 18
     except KeyboardInterrupt:
         GPIO.cleanup()
