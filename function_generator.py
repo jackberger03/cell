@@ -1,6 +1,7 @@
 import time
 import math
-from adafruit_mcp4725 import MCP4725
+import adafruit_mcp4725
+import busio
 import board
 
 class FunctionGenerator:
@@ -95,8 +96,8 @@ class FunctionGenerator:
                 self.running = False
 
 if __name__ == "__main__":
-    i2c = board.I2C()
-    dac = MCP4725(i2c)
+    i2c = busio.I2C(board.SCL, board.SDA)
+    dac = adafruit_mcp4725.MCP4725(i2c)
     fg = FunctionGenerator(dac)
     
     try:
