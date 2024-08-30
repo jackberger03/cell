@@ -17,9 +17,9 @@ class FunctionGenerator:
         period = 1 / frequency
         half_period = period / 2
         while self.running:
-            self.dac.normalized_value = 1.0  # High
+            self.dac.voltage = max_voltage  # High (max_voltage)
             time.sleep(half_period)
-            self.dac.normalized_value = 0.0  # Low
+            self.dac.voltage = 0  # Low (0V)
             time.sleep(half_period)
 
     def sine_wave(self, frequency, max_voltage):
@@ -30,7 +30,7 @@ class FunctionGenerator:
                 if not self.running:
                     break
                 value = (math.sin(2 * math.pi * frequency * t * step) + 1) / 2
-                self.dac.normalized_value = value
+                self.dac.voltage = value * max_voltage
                 time.sleep(step)
 
     def triangle_wave(self, frequency, max_voltage):
@@ -41,13 +41,13 @@ class FunctionGenerator:
             for i in range(50):
                 if not self.running:
                     break
-                self.dac.normalized_value = i / 50
+                self.dac.voltage = (i / 50) * max_voltage
                 time.sleep(step)
             # Falling edge
             for i in range(50, 0, -1):
                 if not self.running:
                     break
-                self.dac.normalized_value = i / 50
+                self.dac.voltage = (i / 50) * max_voltage
                 time.sleep(step)
 
     def get_user_input(self):
@@ -93,7 +93,7 @@ class FunctionGenerator:
                     elif shape == 'sin':
                         self.sine_wave(frequency, max_voltage)
             else:
-                time.sleep(0.1)  # Small delay to prevent CPU hogging
+                time.sleep(0.1)
 
 if __name__ == "__main__":
     i2c = board.I2C()
