@@ -12,47 +12,54 @@ class FunctionGenerator:
         self.button_pin = button_pin
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.add_event_detect(self.button_pin, GPIO.FALLING, callback=self.toggle_running, bouncetime=200)
+        self.last_button_state = GPIO.input(self.button_pin)
 
-    def toggle_running(self, channel):
-        self.running = not self.running
+    def check_button(self):
+        button_state = GPIO.input(self.button_pin)
+        if button_state != self.last_button_state:
+            self.last_button_state = button_state
+            if button_state == GPIO.LOW:
+                self.running = not self.running
+                return True
+        return False
 
     def scale_voltage(self, value, max_voltage):
         return int((value / 3.3) * 4095 * (max_voltage / 3.3))
 
-    def square_wave(self, frequency, max_voltage, duration):
-        end_time = time.time() + duration
+    def square_wave(self, frequency, max_voltage):
         period = 1 / frequency
         half_period = period / 2
-        while time.time() < end_time and self.running:
+        while self.running:
+            if self.check_button():
+                break
             self.dac.raw_value = self.scale_voltage(max_voltage, max_voltage)
             time.sleep(half_period)
+            if self.check_button():
+                break
             self.dac.raw_value = 0
             time.sleep(half_period)
 
-    def sine_wave(self, frequency, max_voltage, duration):
-        end_time = time.time() + duration
+    def sine_wave(self, frequency, max_voltage):
         step = 0.001
-        while time.time() < end_time and self.running:
+        while self.running:
             for t in range(int(1 / (frequency * step))):
-                if not self.running:
-                    break
+                if self.check_button():
+                    return
                 value = (math.sin(2 * math.pi * frequency * t * step) + 1) / 2
                 self.dac.raw_value = self.scale_voltage(value * max_voltage, max_voltage)
                 time.sleep(step)
 
-    def triangle_wave(self, frequency, max_voltage, duration):
-        end_time = time.time() + duration
+    def triangle_wave(self, frequency, max_voltage):
         step = 1 / (frequency * 100)
-        while time.time() < end_time and self.running:
+        while self.running:
             for i in range(100):
-                if not self.running:
-                    break
+                if self.check_button():
+                    return
                 self.dac.raw_value = self.scale_voltage((i / 100) * max_voltage, max_voltage)
                 time.sleep(step)
             for i in range(100, 0, -1):
-                if not self.running:
-                    break
+                if self.check_button():
+                    return
                 self.dac.raw_value = self.scale_voltage((i / 100) * max_voltage, max_voltage)
                 time.sleep(step)
 
@@ -86,19 +93,18 @@ class FunctionGenerator:
     def run(self):
         print("Press the button to start/stop wave generation.")
         while True:
-            if self.running:
+            if self.check_button() and self.running:
                 shape, frequency, max_voltage = self.get_user_input()
                 print(f"Generating {shape} wave at {frequency} Hz with {max_voltage}V max")
                 if shape == 'square':
-                    self.square_wave(frequency, max_voltage, float('inf'))
+                    self.square_wave(frequency, max_voltage)
                 elif shape == 'triangle':
-                    self.triangle_wave(frequency, max_voltage, float('inf'))
+                    self.triangle_wave(frequency, max_voltage)
                 elif shape == 'sin':
-                    self.sine_wave(frequency, max_voltage, float('inf'))
+                    self.sine_wave(frequency, max_voltage)
                 self.dac.raw_value = 0
                 print("Wave generation stopped.")
-            else:
-                time.sleep(0.1)
+            time.sleep(0.01)  # Small delay to prevent excessive CPU usage
 
 if __name__ == "__main__":
     i2c = busio.I2C(board.SCL, board.SDA)
@@ -111,5 +117,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\nStopping the function generator.")
     finally:
-        dac.raw_value = 0  # Reset DAC output to 0V
+        dac.raw_value = 0
         GPIO.cleanup()
